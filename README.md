@@ -41,6 +41,12 @@ One of the main challenges anticipated is delivering high-quality video content 
 
 We are also mindful of potential challenges regarding the database and the implementation of a secure payment gateway, which will be addressed during development.
 
+### Scrum Guide
+We follow the Scrum methodology. To learn more, check out our [Scrum Guide](docs/scrum-guide.md).
+
+### Team Members
+For more details on the team working on this project, refer to the [Team Members](docs/team-members.md).
+
 ## Contributing
 We welcome contributions from the developer community!
 
