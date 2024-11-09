@@ -19,11 +19,11 @@ Top-Up's mission is to bridge the gap between formal education and the practical
 
 ### Backend
 - **Node.js** with **Express** will manage the API services.
-- **Django** will handle course content and user data management.
+
 
 ### Database
-- **PostgreSQL** will be used for relational data.
-- **MongoDB** will provide flexible storage for unstructured content.
+- **MySQL** will be used for relational data.
+
 
 ### Other Tools and Technologies
 - **Figma** for UI/UX design, wireframing, and prototyping.
