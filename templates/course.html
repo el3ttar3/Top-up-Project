@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Top-UP - Online Courses</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <!-- Favicon -->
+    <link href="{{ url_for('static', filename='img/favicon.ico') }}" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet"> 
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{{ url_for('static', filename='lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Navbar Start -->
+    <div class="container-fluid p-0">
+        <nav class="navbar navbar-expand-lg navbar-light py-3 py-lg-0 px-lg-5 glass-nav">
+            <a href="{{ url_for('index') }}" class="navbar-brand ml-lg-3">
+                <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>Top-UP</h1>
+            </a>
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-between px-lg-3" id="navbarCollapse">
+                <div class="navbar-nav mx-auto py-0">
+                    <a href="{{ url_for('index') }}" class="nav-item nav-link">Home</a>
+                    <a href="{{ url_for('about') }}" class="nav-item nav-link">About</a>
+                    <a href="{{ url_for('courses') }}" class="nav-item nav-link active">Courses</a>
+                    <a href="{{ url_for('team') }}" class="nav-item nav-link">Teachers</a>
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('feedback') }}" class="nav-item nav-link">Feedback</a>
+                    {% endif %}
+                    <a href="{{ url_for('contact') }}" class="nav-item nav-link">Contact</a>
+                </div>
+                <div class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                        <span class="nav-item nav-link">
+                            <i class="fas fa-user mr-2"></i>Welcome, {{ current_user.username }}
+                        </span>
+                        <a href="{{ url_for('logout') }}" class="btn btn-primary py-2 px-4 d-none d-lg-block">Logout</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-primary py-2 px-4 d-none d-lg-block mr-2">Login</a>
+                        <a href="{{ url_for('register') }}" class="btn btn-secondary py-2 px-4 d-none d-lg-block">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
+
+    <!-- Header Start -->
+    <div class="jumbotron jumbotron-fluid page-header position-relative overlay-bottom" style="margin-bottom: 90px;">
+        <div class="container text-center py-5">
+            <h1 class="text-white display-1">Courses</h1>
+            <div class="d-inline-flex text-white mb-5">
+                <p class="m-0 text-uppercase"><a class="text-white" href="{{ url_for('index') }}">Home</a></p>
+                <i class="fa fa-angle-double-right pt-1 px-3"></i>
+                <p class="m-0 text-uppercase">Courses</p>
+            </div>
+        </div>
+    </div>
+    <!-- Header End -->
+
+    <!-- Courses Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+            <div class="row mx-0 justify-content-center">
+                <div class="col-lg-8">
+                    <div class="section-title text-center position-relative mb-5 glass-card p-4">
+                        <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">Our Courses</h6>
+                        <h1 class="display-4">Explore Our Popular Online Courses</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                {% for course in courses %}
+                <div class="col-lg-4 col-md-6 pb-4">
+                    <a class="courses-list-item position-relative d-block overflow-hidden mb-2 glass-card" 
+                       href="{{ url_for('detail', course_id=course.id) }}">
+                        <img class="img-fluid" src="{{ course.image_url }}" alt="{{ course.title }}"
+                             style="height: 200px; width: 100%; object-fit: cover;">
+                        <div class="courses-text">
+                            <h4 class="text-center text-white px-3">{{ course.title }}</h4>
+                            <p class="text-white text-center px-3">{{ course.description[:100] }}...</p>
+                            <div class="border-top w-100 mt-3">
+                                <div class="d-flex justify-content-between p-4">
+                                    <span class="text-white"><i class="fa fa-user mr-2"></i>{{ course.instructor }}</span>
+                                    <span class="text-white">
+                                        <i class="fa fa-star mr-2"></i>{{ course.rating|default('0.0') }}
+                                        <small>({{ course.reviews|default('0') }})</small>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- Courses End -->
+
+    <!-- Footer Start -->
+    <div class="container-fluid position-relative overlay-top bg-dark text-white-50 py-5">
+        <div class="container mt-5 pt-5">
+            <div class="row">
+                <div class="col-md-4 mb-5 glass-card p-4">
+                    <h3 class="text-white mb-4">Get In Touch</h3>
+                    <p><i class="fa fa-map-marker-alt mr-2"></i>Zewail City</p>
+                    <p><i class="fa fa-phone-alt mr-2"></i>01016810556</p>
+                    <p><i class="fa fa-envelope mr-2"></i>Top-UP@gmail.com</p>
+                    <div class="d-flex justify-content-start mt-4">
+                        <a class="text-white mr-4" href="https://www.facebook.com/share/1X6bJTQiFF/?mibextid=LQQJ4d">
+                            <i class="fab fa-2x fa-facebook-f"></i>
+                        </a>
+                        <a class="text-white mr-4" href="http://www.linkedin.com/in/top-up-35733733b">
+                            <i class="fab fa-2x fa-linkedin-in"></i>
+                        </a>
+                        <a class="text-white" href="https://www.instagram.com/topup669?igsh=MWxsNmMzajB5dXBlbw%3D%3D&utm_source=qr">
+                            <i class="fab fa-2x fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5 glass-card p-4">
+                    <h3 class="text-white mb-4">Our Courses</h3>
+                    <div class="d-flex flex-column justify-content-start">
+                        <a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Web Development Fundamentals</a>
+                        <a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>React Mastery</a>
+                        <a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Python Programming</a>
+                        <a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>C++ Programming</a>
+                        <a class="text-white-50" href="#"><i class="fa fa-angle-right mr-2"></i>Machine Learning Fundamentals</a>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5 glass-card p-4">
+                    <h3 class="text-white mb-4">Quick Links</h3>
+                    <div class="d-flex flex-column justify-content-start">
+                        <a class="text-white-50 mb-2" href="{{ url_for('index') }}"><i class="fa fa-angle-right mr-2"></i>Home</a>
+                        <a class="text-white-50 mb-2" href="{{ url_for('about') }}"><i class="fa fa-angle-right mr-2"></i>About</a>
+                        <a class="text-white-50 mb-2" href="{{ url_for('courses') }}"><i class="fa fa-angle-right mr-2"></i>Courses</a>
+                        <a class="text-white-50 mb-2" href="{{ url_for('team') }}"><i class="fa fa-angle-right mr-2"></i>Instructors</a>
+                        <a class="text-white-50" href="{{ url_for('contact') }}"><i class="fa fa-angle-right mr-2"></i>Contact</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary rounded-0 btn-lg-square back-to-top"><i class="fa fa-angle-double-up"></i></a>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='lib/easing/easing.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/waypoints/waypoints.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/counterup/counterup.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/owlcarousel/owl.carousel.min.js') }}"></script>
+
+    <!-- Template Javascript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <style>
+    /* Glass morphism styles */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.15);
+    }
+
+    .glass-nav {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .navbar-nav .nav-link {
+        position: relative;
+        padding: 10px 20px !important;
+        transition: color 0.3s ease;
+    }
+
+    .navbar-nav .nav-link:after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 50%;
+        background: linear-gradient(45deg, #17a2b8, #6610f2);
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+    }
+
+    .navbar-nav .nav-link:hover:after,
+    .navbar-nav .nav-link.active:after {
+        width: 80%;
+    }
+
+    .courses-list-item {
+        border-radius: 15px;
+        overflow: hidden;
+        text-decoration: none !important;
+    }
+
+    .courses-text {
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+
+    .jumbotron {
+        background: linear-gradient(135deg, rgba(23,162,184,0.9), rgba(102,16,242,0.9)), 
+                    url('/static/img/header-bg.jpg') center center;
+        background-size: cover;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 991.98px) {
+        .navbar-collapse {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            margin-top: 15px;
+            padding: 15px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+    }
+    </style>
+</body>
+</html>

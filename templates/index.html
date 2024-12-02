@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Top-UP - Online Education Website</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <!-- Favicon -->
+    <link href="{{ url_for('static', filename='img/favicon.ico') }}" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet"> 
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{{ url_for('static', filename='lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+<!-- Enhanced Styles -->
+    <style>
+        /* Glass Morphism Effects */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            transition: transform 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .search-container {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .search-input {
+            border-radius: 30px 0 0 30px !important;
+            border: none !important;
+            padding: 25px 30px !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .search-btn {
+            border-radius: 0 30px 30px 0 !important;
+            padding: 15px 40px !important;
+            background: linear-gradient(45deg, #17a2b8, #6610f2) !important;
+            border: none !important;
+            color: white !important;
+            font-weight: 600 !important;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+        }
+
+        .search-result-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .search-result-item:hover {
+            background: rgba(255,255,255,0.8);
+        }
+
+        /* Enhanced Header */
+        .jumbotron {
+            background: linear-gradient(135deg, rgba(23,162,184,0.9), rgba(102,16,242,0.9)), 
+                        url('/static/img/header-bg.jpg') center center;
+            background-size: cover;
+            margin-bottom: 0 !important;
+        }
+
+        /* Enhanced Cards */
+        .course-card {
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .course-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        /* Animated elements */
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <!-- Notification Styles -->
+    <style>
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .notification {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 15px 25px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: translateX(120%);
+            transition: transform 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            min-width: 300px;
+        }
+
+        .notification.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .notification.error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-icon {
+            margin-right: 15px;
+            font-size: 20px;
+        }
+
+        .notification-content {
+            flex-grow: 1;
+        }
+
+        .notification-close {
+            cursor: pointer;
+            padding: 0 5px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #666;
+        }
+
+        .notification-close:hover {
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+    <body>
+<!-- Navbar Start -->
+<div class="container-fluid p-0">
+    <nav class="navbar navbar-expand-lg navbar-light py-3 py-lg-0 px-lg-5 glass-nav">
+        <a href="{{ url_for('index') }}" class="navbar-brand ml-lg-3">
+            <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>Top-UP</h1>
+        </a>
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-between px-lg-3" id="navbarCollapse">
+            <div class="navbar-nav mx-auto py-0">
+                <a href="{{ url_for('index') }}" class="nav-item nav-link {% if request.endpoint == 'index' %}active{% endif %}">Home</a>
+                <a href="{{ url_for('about') }}" class="nav-item nav-link {% if request.endpoint == 'about' %}active{% endif %}">About</a>
+                <a href="{{ url_for('courses') }}" class="nav-item nav-link {% if request.endpoint == 'courses' %}active{% endif %}">Courses</a>
+                <a href="{{ url_for('team') }}" class="nav-item nav-link {% if request.endpoint == 'team' %}active{% endif %}">Teachers</a>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('feedback') }}" class="nav-item nav-link {% if request.endpoint == 'feedback' %}active{% endif %}">Feedback</a>
+                {% endif %}
+                <a href="{{ url_for('contact') }}" class="nav-item nav-link {% if request.endpoint == 'contact' %}active{% endif %}">Contact</a>
+            </div>
+            <div class="navbar-nav">
+                {% if current_user.is_authenticated %}
+                    <span class="nav-item nav-link">
+                        <i class="fas fa-user mr-2"></i>Welcome, {{ current_user.username }}
+                    </span>
+                    <a href="{{ url_for('logout') }}" class="btn btn-primary py-2 px-4 d-none d-lg-block">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-primary py-2 px-4 d-none d-lg-block mr-2">Login</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-secondary py-2 px-4 d-none d-lg-block">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+</div>
+<!-- Navbar End -->
+     <!-- Notifications Container -->
+    <div class="notification-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="notification {{ category }}" role="alert">
+                        <div class="notification-icon">
+                            {% if category == 'success' %}
+                                <i class="fas fa-check-circle text-success"></i>
+                            {% else %}
+                                <i class="fas fa-exclamation-circle text-danger"></i>
+                            {% endif %}
+                        </div>
+                        <div class="notification-content">
+                            {{ message }}
+                        </div>
+                        <button type="button" class="notification-close" onclick="closeNotification(this.parentElement)">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    <!-- Enhanced Header with Search -->
+    <div class="jumbotron jumbotron-fluid position-relative overlay-bottom">
+        <div class="container text-center my-5 py-5">
+            <h1 class="text-white display-1 mb-5 fade-in">Education Courses</h1>
+            <div class="mx-auto mb-5" style="width: 100%; max-width: 600px;">
+                <div class="search-container position-relative">
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control search-input" 
+                               placeholder="What do you want to learn?">
+                        <div class="input-group-append">
+                            <button class="btn search-btn" type="button" onclick="searchCourses()">
+                                <i class="fas fa-search mr-2"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                    <div id="searchResults" class="search-results">
+                        <!-- Search results will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+   <!-- About Start -->
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-5 mb-5 mb-lg-0" style="min-height: 500px;">
+                <div class="position-relative h-100 glass-card">
+                    <img class="position-absolute w-100 h-100" src="/static/img/about.jpg" style="object-fit: cover; border-radius: 15px;">
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="section-title position-relative mb-4 glass-card p-4">
+                    <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">About Us</h6>
+                    <h1 class="display-4">First Choice For Online Education Anywhere</h1>
+                </div>
+                <div class="glass-card p-4 mb-4">
+                    <p>Tempor erat elitr rebum at clita. Diam dolor diam ipsum ta. Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet lorem sit clita duo justo magna dolore erat amet</p>
+                </div>
+                <div class="row pt-3 mx-0">
+                    <div class="col-3 px-0">
+                        <div class="bg-success text-center p-4 glass-card h-100">
+                            <h1 class="text-white" data-toggle="counter-up">123</h1>
+                            <h6 class="text-uppercase text-white">Available<span class="d-block">Subjects</span></h6>
+                        </div>
+                    </div>
+                    <div class="col-3 px-0">
+                        <div class="bg-primary text-center p-4 glass-card h-100">
+                            <h1 class="text-white" data-toggle="counter-up">1234</h1>
+                            <h6 class="text-uppercase text-white">Online<span class="d-block">Courses</span></h6>
+                        </div>
+                    </div>
+                    <div class="col-3 px-0">
+                        <div class="bg-secondary text-center p-4 glass-card h-100">
+                            <h1 class="text-white" data-toggle="counter-up">123</h1>
+                            <h6 class="text-uppercase text-white">Skilled<span class="d-block">Instructors</span></h6>
+                        </div>
+                    </div>
+                    <div class="col-3 px-0">
+                        <div class="bg-warning text-center p-4 glass-card h-100">
+                            <h1 class="text-white" data-toggle="counter-up">1234</h1>
+                            <h6 class="text-uppercase text-white">Happy<span class="d-block">Students</span></h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Courses Section -->
+<div class="container-fluid py-5">
+    <div class="container pt-5 pb-3">
+        <div class="text-center mb-5 glass-card p-4">
+            <h5 class="text-primary text-uppercase mb-3" style="letter-spacing: 5px;">Subjects</h5>
+            <h1>Explore Top Subjects</h1>
+        </div>
+        <div class="row">
+            {% for course in courses %}
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="cat-item position-relative overflow-hidden rounded mb-2 glass-card">
+                    <img class="img-fluid" src="{{ course.image_url }}" alt="{{ course.title }}" style="height: 200px; width: 100%; object-fit: cover;">
+                    <a class="cat-overlay text-white text-decoration-none" href="{{ url_for('detail', course_id=course.id) }}">
+                        <div class="p-4">
+                            <h5 class="text-white font-weight-bold mb-2">{{ course.title }}</h5>
+                            <p class="text-white mb-2"><i class="fa fa-user mr-2"></i>{{ course.instructor }}</p>
+                            <div class="rating mb-2">
+                                {% for i in range(course.rating|round|int) %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% endfor %}
+                                {% for i in range(5 - course.rating|round|int) %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.cat-item {
+    height: 200px;
+    overflow: hidden;
+}
+
+.cat-item img {
+    transition: all 0.5s ease;
+}
+
+.cat-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.5s ease;
+}
+
+.cat-item:hover .cat-overlay {
+    opacity: 1;
+}
+
+.cat-item:hover img {
+    transform: scale(1.1);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+</style>
+
+
+   <!-- Feature Start -->
+<div class="container-fluid bg-image" style="margin: 90px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 my-5 pt-5 pb-lg-5">
+                <div class="section-title position-relative mb-4 glass-card p-4">
+                    <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">Why Choose Us?</h6>
+                    <h1 class="display-4">Why You Should Start Learning with Us?</h1>
+                </div>
+                <div class="glass-card p-4 mb-4">
+                    <p class="mb-4 pb-2">Top-Up is an online learning platform designed to empower individuals by offering curated courses that develop specific skills for career advancement. With content crafted by industry experts, Top-Up provides real-world skills that can be immediately applied, focusing on practical learning that drives measurable growth.</p>
+                </div>
+                <div class="d-flex mb-3 glass-card p-4">
+                    <div class="btn-icon bg-primary mr-4">
+                        <i class="fa fa-2x fa-graduation-cap text-white"></i>
+                    </div>
+                    <div class="mt-n1">
+                        <h4>Skilled Instructors</h4>
+                        <p>At TopUp, we take pride in our team of skilled instructors who bring a wealth of knowledge, practical experience, and a passion for teaching.</p>
+                    </div>
+                </div>
+                <div class="d-flex glass-card p-4">
+                    <div class="btn-icon bg-secondary mr-4">
+                        <i class="fa fa-2x fa-certificate text-white"></i>
+                    </div>
+                    <div class="mt-n1">
+                        <h4>Online Classes</h4>
+                        <p class="m-0">At TopUp, we provide top-notch online learning experiences designed to help you achieve your goals from the comfort of your home.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5" style="min-height: 500px;">
+                <div class="position-relative h-100 glass-card">
+                    <img class="position-absolute w-100 h-100" src="/static/img/feature.jpg" style="object-fit: cover; border-radius: 15px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Courses Start -->
+<div class="container-fluid px-0 py-5">
+    <div class="row mx-0 justify-content-center pt-5">
+        <div class="col-lg-6">
+            <div class="section-title text-center position-relative mb-4 glass-card p-4">
+                <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">Our Courses</h6>
+                <h1 class="display-4">Checkout New Releases Of Our Courses</h1>
+            </div>
+        </div>
+    </div>
+    <div class="owl-carousel courses-carousel">
+        {% for course in courses %}
+        <div class="courses-item position-relative glass-card">
+            <img class="img-fluid" src="{{ course.image_url }}" alt="{{ course.title }}">
+            <div class="courses-text">
+                <h4 class="text-center text-white px-3">{{ course.title }}</h4>
+                <div class="border-top w-100 mt-3">
+                    <div class="d-flex justify-content-between p-4">
+                        <span class="text-white"><i class="fa fa-user mr-2"></i>{{ course.instructor }}</span>
+                        <span class="text-white">
+                            <i class="fa fa-star mr-2"></i>{{ course.rating|default('0.0') }}
+                            <small>({{ course.reviews|default('0') }})</small>
+                        </span>
+                    </div>
+                </div>
+                <div class="w-100 bg-white text-center p-4">
+                    <a class="btn btn-primary" href="{{ url_for('detail', course_id=course.id) }}">Course Detail</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Team Start -->
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="section-title text-center position-relative mb-5 glass-card p-4">
+            <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">Instructors</h6>
+            <h1 class="display-4">Meet Our Instructors</h1>
+        </div>
+        <div class="owl-carousel team-carousel position-relative" style="padding: 0 30px;">
+            {% for instructor in instructors %}
+            <div class="team-item glass-card">
+                <img class="img-fluid w-100" src="{{ instructor.image_url }}" alt="" style="border-radius: 15px 15px 0 0;">
+                <div class="bg-light text-center p-4" style="border-radius: 0 0 15px 15px;">
+                    <h5 class="mb-3">{{ instructor.name }}</h5>
+                    <p class="mb-2">{{ instructor.specialty }}</p>
+                    <div class="d-flex justify-content-center">
+                        <a class="mx-1 p-1" href="{{ instructor.twitter }}"><i class="fab fa-twitter"></i></a>
+                        <a class="mx-1 p-1" href="{{ instructor.facebook }}"><i class="fab fa-facebook-f"></i></a>
+                        <a class="mx-1 p-1" href="{{ instructor.linkedin }}"><i class="fab fa-linkedin-in"></i></a>
+                        <a class="mx-1 p-1" href="{{ instructor.instagram }}"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+    <!-- Footer Start -->
+    <div class="container-fluid position-relative overlay-top bg-dark text-white-50 py-5">
+        <div class="container mt-5 pt-5">
+            <div class="row">
+                <div class="col-md-4 mb-5 glass-card p-4">
+                    <h3 class="text-white mb-4">Get In Touch</h3>
+                    <p><i class="fa fa-map-marker-alt mr-2"></i>Zewail City</p>
+                    <p><i class="fa fa-phone-alt mr-2"></i>01016810556</p>
+                    <p><i class="fa fa-envelope mr-2"></i>Top-UP@gmail.com</p>
+                    <div class="d-flex justify-content-start mt-4">
+                        <a class="text-white mr-4" href="https://www.facebook.com/share/1X6bJTQiFF/?mibextid=LQQJ4d">
+                            <i class="fab fa-2x fa-facebook-f"></i>
+                        </a>
+                        <a class="text-white mr-4" href="http://www.linkedin.com/in/top-up-35733733b">
+                            <i class="fab fa-2x fa-linkedin-in"></i>
+                        </a>
+                        <a class="text-white" href="https://www.instagram.com/topup669?igsh=MWxsNmMzajB5dXBlbw%3D%3D&utm_source=qr">
+                            <i class="fab fa-2x fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5 glass-card p-4">
+                    <h3 class="text-white mb-4">Our Courses</h3>
+                    <div class="d-flex flex-column justify-content-start">
+                        <a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Web Development Fundamentals</a>
+                        <a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>React Mastery</a>
+                        <a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Python Programming</a>
+                        <a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>C++ Programming</a>
+                        <a class="text-white-50" href="#"><i class="fa fa-angle-right mr-2"></i>Machine Learning Fundamentals</a>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5 glass-card p-4">
+                    <h3 class="text-white mb-4">Quick Links</h3>
+                    <div class="d-flex flex-column justify-content-start">
+                        <a class="text-white-50 mb-2" href="{{ url_for('index') }}"><i class="fa fa-angle-right mr-2"></i>Home</a>
+                        <a class="text-white-50 mb-2" href="{{ url_for('about') }}"><i class="fa fa-angle-right mr-2"></i>About</a>
+                        <a class="text-white-50 mb-2" href="{{ url_for('courses') }}"><i class="fa fa-angle-right mr-2"></i>Courses</a>
+                        <a class="text-white-50 mb-2" href="{{ url_for('team') }}"><i class="fa fa-angle-right mr-2"></i>Instructors</a>
+                        <a class="text-white-50" href="{{ url_for('contact') }}"><i class="fa fa-angle-right mr-2"></i>Contact</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary rounded-0 btn-lg-square back-to-top"><i class="fa fa-angle-double-up"></i></a>
+
+      <!-- JavaScript Libraries -->
+      <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+      <script src="{{ url_for('static', filename='lib/easing/easing.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='lib/waypoints/waypoints.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='lib/counterup/counterup.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='lib/owlcarousel/owl.carousel.min.js') }}"></script>
+      <style>
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    
+        .navbar-nav .nav-link {
+            position: relative;
+            padding: 10px 20px !important;
+            transition: color 0.3s ease;
+        }
+    
+        .navbar-nav .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background: linear-gradient(45deg, #17a2b8, #6610f2);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+    
+        .navbar-nav .nav-link:hover:after,
+        .navbar-nav .nav-link.active:after {
+            width: 80%;
+        }
+    
+        .navbar-nav .nav-link.active {
+            color: #17a2b8 !important;
+            font-weight: 600;
+        }
+    
+        .btn {
+            transition: all 0.3s ease;
+            border-radius: 30px;
+            padding: 8px 25px !important;
+        }
+    
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    
+        .btn-primary {
+            background: linear-gradient(45deg, #17a2b8, #6610f2);
+            border: none;
+        }
+    
+        .btn-secondary {
+            background: linear-gradient(45deg, #6c757d, #343a40);
+            border: none;
+        }
+    
+        /* Mobile menu styles */
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border-radius: 10px;
+                margin-top: 15px;
+                padding: 15px;
+                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            }
+    
+            .navbar-nav .nav-link {
+                padding: 12px 20px !important;
+                text-align: center;
+            }
+    
+            .navbar-nav .btn {
+                display: block !important;
+                margin: 10px 20px;
+            }
+        }
+    
+        /* Welcome message style */
+        .navbar-nav .nav-link i {
+            margin-right: 5px;
+        }
+    
+        /* Animation for active link */
+        @keyframes activeLink {
+            from { width: 0; }
+            to { width: 80%; }
+        }
+    
+        .navbar-nav .nav-link.active:after {
+            animation: activeLink 0.3s ease forwards;
+        }
+    </style>
+      <!-- Notification JavaScript -->
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              // Show all notifications with a slight delay
+              const notifications = document.querySelectorAll('.notification');
+              notifications.forEach((notification, index) => {
+                  setTimeout(() => {
+                      notification.classList.add('show');
+                  }, index * 100);
+  
+                  // Auto-hide after 5 seconds
+                  setTimeout(() => {
+                      closeNotification(notification);
+                  }, 5000 + (index * 100));
+              });
+          });
+  
+          function closeNotification(notification) {
+              notification.style.transform = 'translateX(120%)';
+              setTimeout(() => {
+                  notification.remove();
+              }, 300);
+          }
+          <style>
+            .cat-item {
+                transition: transform 0.3s ease;
+            }
+        
+            .cat-item:hover {
+                transform: translateY(-5px);
+            }
+        
+            .cat-overlay {
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(5px);
+                -webkit-backdrop-filter: blur(5px);
+                transition: all 0.3s ease;
+            }
+        
+            .cat-overlay:hover {
+                background: rgba(0, 0, 0, 0.7);
+            }
+        
+            .counter-section .glass-card {
+                transition: transform 0.3s ease;
+            }
+        
+            .counter-section .glass-card:hover {
+                transform: translateY(-5px);
+            }
+        
+            /* Enhanced glass effect for statistics boxes */
+            .bg-success.glass-card,
+            .bg-primary.glass-card,
+            .bg-secondary.glass-card,
+            .bg-warning.glass-card {
+                background: rgba(255, 255, 255, 0.1) !important;
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                transition: all 0.3s ease;
+            }
+        
+            .bg-success.glass-card:hover,
+            .bg-primary.glass-card:hover,
+            .bg-secondary.glass-card:hover,
+            .bg-warning.glass-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            }
+        
+            /* Animation for counter numbers */
+            [data-toggle="counter-up"] {
+                opacity: 0;
+                transform: translateY(20px);
+                animation: fadeInUp 1s ease forwards;
+            }
+        
+            @keyframes fadeInUp {
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+
+      </script>
+      <!-- Add this JavaScript for search functionality -->
+    <script>
+        let searchTimeout;
+
+        function searchCourses() {
+            const query = document.getElementById('searchInput').value;
+            const resultsDiv = document.getElementById('searchResults');
+            
+            clearTimeout(searchTimeout);
+            
+            if (query.length < 2) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+
+            searchTimeout = setTimeout(() => {
+                fetch(`/search?query=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.courses && data.courses.length > 0) {
+                            resultsDiv.innerHTML = data.courses.map(course => `
+                                <div class="search-result-item" onclick="window.location.href='/course/${course.id}'">
+                                    <div class="d-flex align-items-center">
+                                        <img src="${course.image_url}" alt="${course.title}" 
+                                             style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                                        <div class="ml-3">
+                                            <h6 class="mb-1">${course.title}</h6>
+                                            <p class="mb-0 small text-muted">${course.instructor}</p>
+                                            <div class="rating">
+                                                ${generateStarRating(course.rating)}
+                                                <small>(${course.reviews_count} reviews)</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('');
+                            resultsDiv.style.display = 'block';
+                        } else {
+                            resultsDiv.innerHTML = `
+                                <div class="search-result-item">
+                                    <p class="mb-0">No courses found</p>
+                                </div>
+                            `;
+                            resultsDiv.style.display = 'block';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Search error:', error);
+                        resultsDiv.innerHTML = `
+                            <div class="search-result-item">
+                                <p class="mb-0 text-danger">Error searching courses</p>
+                            </div>
+                        `;
+                        resultsDiv.style.display = 'block';
+                    });
+            }, 300);
+        }
+
+        function generateStarRating(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            return `
+                ${'<i class="fas fa-star text-warning"></i>'.repeat(fullStars)}
+                ${hasHalfStar ? '<i class="fas fa-star-half-alt text-warning"></i>' : ''}
+                ${'<i class="far fa-star text-warning"></i>'.repeat(emptyStars)}
+            `;
+        }
+
+        // Add event listener for search input
+        document.getElementById('searchInput').addEventListener('input', searchCourses);
+
+        // Close search results when clicking outside
+        document.addEventListener('click', function(event) {
+            const searchResults = document.getElementById('searchResults');
+            const searchContainer = document.querySelector('.search-container');
+            
+            if (!searchContainer.contains(event.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
+    </script>
+  
+      <!-- Template Javascript -->
+      <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </body>
+  </html>

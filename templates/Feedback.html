@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Top-UP - Feedback</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <!-- Favicon -->
+    <link href="{{ url_for('static', filename='img/favicon.ico') }}" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet"> 
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    </head>
+
+<body>
+<!-- Navbar Start -->
+<div class="container-fluid p-0">
+    <nav class="navbar navbar-expand-lg navbar-light py-3 py-lg-0 px-lg-5 glass-nav">
+        <a href="{{ url_for('index') }}" class="navbar-brand ml-lg-3">
+            <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-book-reader mr-3"></i>Top-UP</h1>
+        </a>
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-between px-lg-3" id="navbarCollapse">
+            <div class="navbar-nav mx-auto py-0">
+                <a href="{{ url_for('index') }}" class="nav-item nav-link {% if request.endpoint == 'index' %}active{% endif %}">Home</a>
+                <a href="{{ url_for('about') }}" class="nav-item nav-link {% if request.endpoint == 'about' %}active{% endif %}">About</a>
+                <a href="{{ url_for('courses') }}" class="nav-item nav-link {% if request.endpoint == 'courses' %}active{% endif %}">Courses</a>
+                <a href="{{ url_for('team') }}" class="nav-item nav-link {% if request.endpoint == 'team' %}active{% endif %}">Teachers</a>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('feedback') }}" class="nav-item nav-link {% if request.endpoint == 'feedback' %}active{% endif %}">Feedback</a>
+                {% endif %}
+                <a href="{{ url_for('contact') }}" class="nav-item nav-link {% if request.endpoint == 'contact' %}active{% endif %}">Contact</a>
+            </div>
+            <div class="navbar-nav">
+                {% if current_user.is_authenticated %}
+                    <span class="nav-item nav-link">
+                        <i class="fas fa-user mr-2"></i>Welcome, {{ current_user.username }}
+                    </span>
+                    <a href="{{ url_for('logout') }}" class="btn btn-primary py-2 px-4 d-none d-lg-block">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-primary py-2 px-4 d-none d-lg-block mr-2">Login</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-secondary py-2 px-4 d-none d-lg-block">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+</div>
+<!-- Navbar End -->
+
+
+    <!-- Header Start -->
+    <div class="jumbotron jumbotron-fluid page-header position-relative overlay-bottom" style="margin-bottom: 90px;">
+        <div class="container text-center py-5">
+            <h1 class="text-white display-1">Feedback</h1>
+            <div class="d-inline-flex text-white mb-5">
+                <p class="m-0 text-uppercase"><a class="text-white" href="{{ url_for('index') }}">Home</a></p>
+                <i class="fa fa-angle-double-right pt-1 px-3"></i>
+                <p class="m-0 text-uppercase">Feedback</p>
+            </div>
+        </div>
+    </div>
+    <!-- Header End -->
+
+    <!-- Debug Info (hidden in production) -->
+    <div style="display: none;">
+        <h4>Debug Information:</h4>
+        <pre>{{ feedbacks|tojson(indent=2) }}</pre>
+    </div>
+
+    <!-- Testimonials Section Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+            <div class="text-center mb-5">
+                <h5 class="text-primary text-uppercase mb-3" style="letter-spacing: 5px;">Testimonials</h5>
+                <h1>What Our Students Say</h1>
+            </div>
+            
+            {% if feedbacks %}
+                <div class="testimonial-carousel owl-carousel">
+                    {% for feedback in feedbacks %}
+                        <div class="testimonial-item">
+                            <div class="bg-light p-4">
+                                <!-- User Info -->
+                                <div class="d-flex mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fa fa-user-circle text-primary fa-3x mr-3"></i>
+                                        <div>
+                                            <h6 class="font-weight-bold mb-1">
+                                                {{ feedback.users.username or 'Anonymous User' }}
+                                            </h6>
+                                            <small class="text-muted mb-0">
+                                                {{ feedback.courses.title or 'Unknown Course' }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Rating Stars -->
+                                <div class="mb-3">
+                                    {% for _ in range(feedback.rating or 0) %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% endfor %}
+                                    {% for _ in range(5 - (feedback.rating or 0)) %}
+                                        <i class="far fa-star text-warning"></i>
+                                    {% endfor %}
+                                </div>
+                                
+                                <!-- Feedback Comment -->
+                                <p class="text-dark mb-0">{{ feedback.comment or 'No comment provided' }}</p>
+                                
+                                <!-- Feedback Date -->
+                                <small class="text-muted d-block mt-2">
+                                    {{ feedback.created_at.split('T')[0] if feedback.created_at else 'Date not available' }}
+                                </small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center">
+                    <p class="text-muted">No feedback available yet. Be the first to share your experience!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <!-- Testimonials Section End -->
+
+    <!-- Feedback Form Section -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="glass-card feedback-form">
+                        <h3 class="text-primary text-center mb-4">Share Your Experience</h3>
+                        {% if user_courses %}
+                            <form id="feedbackForm">
+                                <!-- Course Selection -->
+                                <div class="form-group">
+                                    <label class="form-label required">Select Course</label>
+                                    <select class="form-control course-select" name="course_id" id="course_id" required>
+                                        <option value="">Choose a course...</option>
+                                        {% for enrollment in user_courses %}
+                                            <option value="{{ enrollment.course_id }}">{{ enrollment.courses.title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <!-- Rating Stars -->
+                                <div class="form-group text-center">
+                                    <label class="form-label required">Your Rating</label>
+                                    <div class="rating">
+                                        {% for i in range(5, 0, -1) %}
+                                            <input type="radio" name="rating" value="{{ i }}" id="{{ i }}">
+                                            <label for="{{ i }}">☆</label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <!-- Comment -->
+                                <div class="form-group">
+                                    <label class="form-label required">Your Feedback</label>
+                                    <textarea class="form-control" id="comment" rows="5" 
+                                        placeholder="Share your thoughts about this course..." required></textarea>
+                                </div>
+
+                                <div id="messageDiv" class="my-3"></div>
+
+                                <!-- Submit Button -->
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary py-3 px-5" id="submitButton">
+                                        Submit Feedback
+                                    </button>
+                                </div>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-info text-center">
+                                You are not enrolled in any courses yet. 
+                                <a href="{{ url_for('courses') }}" class="alert-link">Browse our courses</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Start -->
+    <div class="container-fluid position-relative overlay-top bg-dark text-white-50 py-5">
+        <div class="container mt-5 pt-5">
+            <div class="row">
+                <div class="col-md-4 mb-5 glass-card p-4">
+                    <h3 class="text-white mb-4">Get In Touch</h3>
+                    <p><i class="fa fa-map-marker-alt mr-2"></i>Zewail City</p>
+                    <p><i class="fa fa-phone-alt mr-2"></i>01016810556</p>
+                    <p><i class="fa fa-envelope mr-2"></i>Top-UP@gmail.com</p>
+                    <div class="d-flex justify-content-start mt-4">
+                        <a class="text-white mr-4" href="https://www.facebook.com/share/1X6bJTQiFF/?mibextid=LQQJ4d">
+                            <i class="fab fa-2x fa-facebook-f"></i>
+                        </a>
+                        <a class="text-white mr-4" href="http://www.linkedin.com/in/top-up-35733733b">
+                            <i class="fab fa-2x fa-linkedin-in"></i>
+                        </a>
+                        <a class="text-white" href="https://www.instagram.com/topup669?igsh=MWxsNmMzajB5dXBlbw%3D%3D&utm_source=qr">
+                            <i class="fab fa-2x fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5 glass-card p-4">
+                    <h3 class="text-white mb-4">Our Courses</h3>
+                    <div class="d-flex flex-column justify-content-start">
+                        <a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Web Development Fundamentals</a>
+                        <a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>React Mastery</a>
+                        <a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Python Programming</a>
+                        <a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>C++ Programming</a>
+                        <a class="text-white-50" href="#"><i class="fa fa-angle-right mr-2"></i>Machine Learning Fundamentals</a>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5 glass-card p-4">
+                    <h3 class="text-white mb-4">Quick Links</h3>
+                    <div class="d-flex flex-column justify-content-start">
+                        <a class="text-white-50 mb-2" href="{{ url_for('index') }}"><i class="fa fa-angle-right mr-2"></i>Home</a>
+                        <a class="text-white-50 mb-2" href="{{ url_for('about') }}"><i class="fa fa-angle-right mr-2"></i>About</a>
+                        <a class="text-white-50 mb-2" href="{{ url_for('courses') }}"><i class="fa fa-angle-right mr-2"></i>Courses</a>
+                        <a class="text-white-50 mb-2" href="{{ url_for('team') }}"><i class="fa fa-angle-right mr-2"></i>Instructors</a>
+                        <a class="text-white-50" href="{{ url_for('contact') }}"><i class="fa fa-angle-right mr-2"></i>Contact</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary rounded-0 btn-lg-square back-to-top">
+        <i class="fa fa-angle-double-up"></i>
+    </a>
+
+    <!-- JavaScript Libraries -->
+        <!-- Include jQuery first -->
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+   <!-- Include counterUp plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Counter-Up/1.0.0/jquery.counterup.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        if (document.getElementById('feedbackForm')) {
+            document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const submitButton = document.getElementById('submitButton');
+                const messageDiv = document.getElementById('messageDiv');
+                
+                // Validate form
+                const courseId = document.getElementById('course_id').value;
+                const rating = document.querySelector('input[name="rating"]:checked')?.value;
+                const comment = document.getElementById('comment').value.trim();
+                
+                if (!courseId || !rating || !comment) {
+                    messageDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            Please fill in all required fields
+                        </div>`;
+                    return;
+                }
+                
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+                
+                try {
+                    const response = await fetch('/submit_feedback', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            course_id: parseInt(courseId),
+                            rating: parseInt(rating),
+                            comment: comment
+                        })
+                    });
+
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        messageDiv.innerHTML = `
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                ${result.message}
+                            </div>`;
+                        this.reset();
+                        
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        throw new Error(result.error || 'Failed to submit feedback');
+                    }
+                } catch (error) {
+                    messageDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            ${error.message}
+                        </div>`;
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Submit Feedback';
+                }
+            });
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+
+        .form-label.required:after {
+            content: '*';
+            color: #dc3545;
+            margin-left: 4px;
+        }
+
+        .rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .rating input {
+            display: none;
+        }
+
+        .rating label {
+            cursor: pointer;
+            font-size: 30px;
+            color: #ddd;
+            transition: all 0.2s ease;
+        }
+
+        .rating label:hover,
+        .rating label:hover ~ label,
+        .rating input:checked ~ label {
+            color: #ffc107;
+        }
+
+        .testimonial-card {
+            transition: transform 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+
+        <style>
+            /* Glass Morphism Effects */
+            .glass-nav {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            }
+    
+            .glass-card {
+                background: rgba(255, 255, 255, 0.7);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 15px;
+                box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+                transition: transform 0.3s ease;
+            }
+    
+            .glass-card:hover {
+                transform: translateY(-5px);
+            }
+    
+            .search-container {
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border-radius: 20px;
+                padding: 30px;
+                box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            }
+    
+            .search-input {
+                border-radius: 30px 0 0 30px !important;
+                border: none !important;
+                padding: 25px 30px !important;
+                background: rgba(255, 255, 255, 0.9) !important;
+                backdrop-filter: blur(5px);
+                -webkit-backdrop-filter: blur(5px);
+            }
+    
+            .search-btn {
+                border-radius: 0 30px 30px 0 !important;
+                padding: 15px 40px !important;
+                background: linear-gradient(45deg, #17a2b8, #6610f2) !important;
+                border: none !important;
+                color: white !important;
+                font-weight: 600 !important;
+            }
+    
+            .search-results {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border-radius: 15px;
+                box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+                max-height: 300px;
+                overflow-y: auto;
+                display: none;
+                z-index: 1000;
+            }
+    
+            .search-result-item {
+                padding: 15px 20px;
+                border-bottom: 1px solid rgba(0,0,0,0.1);
+                cursor: pointer;
+                transition: background 0.3s ease;
+            }
+    
+            .search-result-item:hover {
+                background: rgba(255,255,255,0.8);
+            }
+    
+            /* Enhanced Header */
+            .jumbotron {
+                background: linear-gradient(135deg, rgba(23,162,184,0.9), rgba(102,16,242,0.9)), 
+                            url('/static/img/header-bg.jpg') center center;
+                background-size: cover;
+                margin-bottom: 0 !important;
+            }
+    
+            /* Enhanced Cards */
+            .course-card {
+                border-radius: 15px;
+                overflow: hidden;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+    
+            .course-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            }
+    
+            /* Animated elements */
+            .fade-in {
+                animation: fadeIn 1s ease-in;
+            }
+    
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        </style>
+            <style>
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    
+        .navbar-nav .nav-link {
+            position: relative;
+            padding: 10px 20px !important;
+            transition: color 0.3s ease;
+        }
+    
+        .navbar-nav .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background: linear-gradient(45deg, #17a2b8, #6610f2);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+    
+        .navbar-nav .nav-link:hover:after,
+        .navbar-nav .nav-link.active:after {
+            width: 80%;
+        }
+    
+        .navbar-nav .nav-link.active {
+            color: #17a2b8 !important;
+            font-weight: 600;
+        }
+    
+        .btn {
+            transition: all 0.3s ease;
+            border-radius: 30px;
+            padding: 8px 25px !important;
+        }
+    
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    
+        .btn-primary {
+            background: linear-gradient(45deg, #17a2b8, #6610f2);
+            border: none;
+        }
+    
+        .btn-secondary {
+            background: linear-gradient(45deg, #6c757d, #343a40);
+            border: none;
+        }
+    
+        /* Mobile menu styles */
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border-radius: 10px;
+                margin-top: 15px;
+                padding: 15px;
+                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            }
+    
+            .navbar-nav .nav-link {
+                padding: 12px 20px !important;
+                text-align: center;
+            }
+    
+            .navbar-nav .btn {
+                display: block !important;
+                margin: 10px 20px;
+            }
+        }
+    
+        /* Welcome message style */
+        .navbar-nav .nav-link i {
+            margin-right: 5px;
+        }
+    
+        /* Animation for active link */
+        @keyframes activeLink {
+            from { width: 0; }
+            to { width: 80%; }
+        }
+    
+        .navbar-nav .nav-link.active:after {
+            animation: activeLink 0.3s ease forwards;
+        }
+    </style>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Form Styling */
+        .feedback-form {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-label {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .form-label.required:after {
+            content: '*';
+            color: #e74c3c;
+            margin-left: 4px;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(44, 62, 80, 0.2);
+            border-radius: 10px;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background: #ffffff;
+            box-shadow: 0 0 15px rgba(44, 62, 80, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Rating Stars */
+        .rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .rating input {
+            display: none;
+        }
+
+        .rating label {
+            cursor: pointer;
+            font-size: 30px;
+            color: #ddd;
+            transition: all 0.2s ease;
+        }
+
+        .rating label:hover,
+        .rating label:hover ~ label,
+        .rating input:checked ~ label {
+            color: #ffc107;
+            transform: scale(1.1);
+        }
+
+        /* Testimonial Cards */
+        .testimonial-item {
+            height: 100%;
+            padding: 30px;
+        }
+
+        .testimonial-rating {
+            font-size: 14px;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .glass-card {
+                padding: 20px;
+            }
+
+            .rating label {
+                font-size: 24px;
+            }
+        }
+    </style>
+
+    <!-- Initialize Owl Carousel -->
+    <script>
+    $(document).ready(function(){
+        if (typeof jQuery != 'undefined' && typeof $.fn.owlCarousel != 'undefined') {
+            $('.testimonial-carousel').owlCarousel({
+                loop: true,
+                margin: 20,
+                dots: true,
+                nav: true,
+                autoplay: true,
+                autoplayTimeout: 5000,
+                autoplayHoverPause: true,
+                responsive: {
+                    0: { items: 1 },
+                    768: { items: 1 }
+                },
+                navText: [
+                    '<i class="fa fa-angle-left"></i>',
+                    '<i class="fa fa-angle-right"></i>'
+                ]
+            });
+        }
+    });
+    </script>
+
+    <!-- Feedback Form Handler -->
+    <script>
+        document.getElementById('feedbackForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitButton = document.getElementById('submitButton');
+            const messageDiv = document.getElementById('messageDiv');
+            
+            // Validate form
+            const courseId = document.getElementById('course_id').value;
+            const rating = document.querySelector('input[name="rating"]:checked')?.value;
+            const comment = document.getElementById('comment').value.trim();
+            
+            if (!courseId || !rating || !comment) {
+                messageDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        Please fill in all required fields
+                    </div>`;
+                return;
+            }
+            
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+            
+            try {
+                const response = await fetch('/submit_feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        course_id: parseInt(courseId),
+                        rating: parseInt(rating),
+                        comment: comment
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    messageDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            ${result.message}
+                        </div>`;
+                    this.reset();
+                    
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    throw new Error(result.error || 'Failed to submit feedback');
+                }
+            } catch (error) {
+                messageDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        ${error.message}
+                    </div>`;
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Submit Feedback';
+            }
+        });
+    </script>
+    <!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Owl Carousel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    <!-- Main JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- Required plugins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Counter-Up/1.0.0/jquery.counterup.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+</body>
+</html>
