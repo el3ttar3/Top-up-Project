@@ -18,11 +18,12 @@ Top-Up's mission is to bridge the gap between formal education and the practical
 - **React** will be used to create a responsive and interactive user experience.
 
 ### Backend
-- **Node.js** with **Express** will manage the API services.
+- **Flask** will manage the API services.
 
 
 ### Database
-- **MySQL** will be used for relational data.
+- **Supabase** will be used for relational data and fast API calling.
+- **SQL** as the structure of the data is known.
 
 
 ### Other Tools and Technologies
